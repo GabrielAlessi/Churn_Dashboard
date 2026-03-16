@@ -548,6 +548,19 @@ elif page == "🔵 Análise RFM e Clusters":
             subset=['RFM_Score','Produtos','Engagement'], cmap='Blues'),
             use_container_width=True)
 
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("## Receita em Risco por Segmento")
+        risco_df = df[df['churn_risk'].isin(['Alto','Crítico'])].groupby('cluster_name').agg(
+            Em_Risco   = ('customer_id','count'),
+            Receita    = ('M', 'sum'),
+            Ticket_Med = ('M', 'mean'),
+        ).round(0).sort_values('Receita', ascending=False)
+        risco_df['Receita']    = risco_df['Receita'].apply(lambda x: f'R$ {x/1000:.0f}k')
+        risco_df['Ticket_Med'] = risco_df['Ticket_Med'].apply(lambda x: f'R$ {x:.0f}')
+        st.dataframe(risco_df.style.background_gradient(
+            subset=['Em_Risco'], cmap='Reds'),
+            use_container_width=True)
+
     with col_pie:
         st.markdown("## Distribuição")
         sz      = df['cluster_name'].value_counts().sort_values()
