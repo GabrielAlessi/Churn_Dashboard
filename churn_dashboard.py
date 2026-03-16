@@ -550,21 +550,33 @@ elif page == "🔵 Análise RFM e Clusters":
 
     with col_pie:
         st.markdown("## Distribuição")
-        fig, ax = plt.subplots(figsize=(3.5, 3.5), facecolor='#06080f')
-        ax.set_facecolor('#06080f')
-        sz = df['cluster_name'].value_counts()
-        wedges, texts, autotexts = ax.pie(
-            sz.values, labels=None,
-            colors=PALETTE[:len(sz)], autopct='%1.0f%%',
-            startangle=90,
-            wedgeprops={'edgecolor':'#06080f','linewidth':1.5},
-            pctdistance=0.72)
-        for t in autotexts:
-            t.set_color('#f1f5f9'); t.set_fontweight('bold'); t.set_fontsize(9)
-        ax.legend(sz.index, loc='lower center', bbox_to_anchor=(0.5, -0.28),
-                  ncol=1, facecolor='#06080f', labelcolor='#94a3b8',
-                  fontsize=8, framealpha=0)
-        plt.tight_layout(); st.pyplot(fig); plt.close()
+        sz      = df['cluster_name'].value_counts().sort_values()
+        churn_r = df.groupby('cluster_name')['churned'].mean() * 100
+        fig, axes = plt.subplots(2, 1, figsize=(3.2, 3.8), facecolor='#06080f')
+        for ax in axes:
+            ax.set_facecolor('#0a0d14')
+            ax.tick_params(colors='#475569', labelsize=8)
+            for spine in ax.spines.values(): spine.set_edgecolor('#1e2d3d')
+
+        # Clientes por cluster
+        colors_sz = [PALETTE[i % len(PALETTE)] for i in range(len(sz))]
+        axes[0].barh(sz.index, sz.values, color=colors_sz, alpha=0.9, height=0.55)
+        axes[0].set_title('Clientes', color='#94a3b8', fontsize=9, pad=6)
+        axes[0].set_xlabel('', color='#475569')
+        for i, v in enumerate(sz.values):
+            axes[0].text(v + 20, i, f'{v:,}', va='center', color='#cbd5e1', fontsize=8)
+        axes[0].set_xlim(0, sz.max() * 1.25)
+
+        # Churn rate por cluster
+        cr = churn_r.reindex(sz.index)
+        colors_cr = [PALETTE[4] if v > 25 else PALETTE[1] if v > 10 else PALETTE[3] for v in cr.values]
+        axes[1].barh(cr.index, cr.values, color=colors_cr, alpha=0.9, height=0.55)
+        axes[1].set_title('Churn Rate %', color='#94a3b8', fontsize=9, pad=6)
+        for i, v in enumerate(cr.values):
+            axes[1].text(v + 0.3, i, f'{v:.0f}%', va='center', color='#cbd5e1', fontsize=8)
+        axes[1].set_xlim(0, cr.max() * 1.25)
+
+        plt.tight_layout(pad=1.2); st.pyplot(fig); plt.close()
 
     st.markdown("---")
 
