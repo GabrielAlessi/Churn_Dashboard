@@ -1,6 +1,4 @@
-# Churn_Dashboard
-churn-prediction  rfm  customer-segmentation  xgboost  shap  kmeans  fintech  streamlit  python  retention
-[README_CHURN.md](https://github.com/user-attachments/files/26030694/README_CHURN.md)
+[README_CHURN.md](https://github.com/user-attachments/files/26032350/README_CHURN.md)
 # 📉 Análise Preditiva de Churn — Fintech / Banco Digital
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
@@ -43,6 +41,10 @@ Reter clientes em um banco digital é mais barato do que adquirir novos — mas 
 ---
 
 ## 🖥️ Aplicação em Produção
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://churndashboard-jlene4ghqevkrsxshcjpa9.streamlit.app/)
+
+🔗 **[Acessar a aplicação](https://churndashboard-jlene4ghqevkrsxshcjpa9.streamlit.app/)**
 
 As análises deste projeto estão disponíveis em uma aplicação interativa com 4 páginas:
 
@@ -188,7 +190,7 @@ ipykernel>=6.0.0
 ## 👨‍💻 Autor
 
 **Gabriel Alessi Naumann**  
-Cientista de Dados 
+Cientista de Dados
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-gabriel--alessi--naumann-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/gabriel-alessi-naumann/)
 [![GitHub](https://img.shields.io/badge/GitHub-GabrielAlessi-181717?style=flat&logo=github)](https://github.com/GabrielAlessi)
