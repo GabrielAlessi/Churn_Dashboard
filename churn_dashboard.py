@@ -428,195 +428,236 @@ def dark_figs(nrows, ncols, figsize):
 
 # ── PAGE 1: Visão Geral ─────────────────────────────────────
 if page == "🏠 Visão Geral":
-    st.title("📉 Análise Preditiva de Churn — Fintech")
-    st.markdown("Identificação de padrões não-lineares de churn e intervenções segmentadas para retenção de clientes.")
+
+    # ── Header com KPIs inline ──────────────────────────────
+    st.title("Análise Preditiva de Churn")
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Banco Digital · 15.000 clientes · Modelo XGBoost · ROC-AUC 0.92</p>", unsafe_allow_html=True)
     st.markdown("---")
 
-    total     = len(df)
-    churned   = df['churned'].sum()
-    churn_rt  = df['churned'].mean()*100
-    criticos  = (df['churn_risk']=='Crítico').sum()
-    alto      = (df['churn_risk']=='Alto').sum()
+    # ── Linha 1: 5 KPIs lado a lado ─────────────────────────
+    k1,k2,k3,k4,k5 = st.columns(5)
+    with k1: st.metric("Total Clientes", f"{total:,}")
+    with k2: st.metric("Churn Rate", f"{churn_rt:.1f}%")
+    with k3: st.metric("Churned", f"{churned:,}")
+    with k4: st.metric("Risco Crítico", f"{criticos:,}")
+    with k5: st.metric("Risco Alto", f"{alto:,}")
 
-    c1,c2,c3,c4,c5 = st.columns(5)
-    with c1: st.metric("Total Clientes", f"{total:,}")
-    with c2: st.metric("Churn Rate", f"{churn_rt:.1f}%")
-    with c3: st.metric("Churned", f"{churned:,}")
-    with c4: st.metric("Risco Crítico", f"{criticos:,}")
-    with c5: st.metric("Risco Alto", f"{alto:,}")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    col1, col2 = st.columns(2)
+    # ── Linha 2: Gráfico largo (7) + painel lateral (3) ─────
+    col_main, col_side = st.columns([7, 3])
 
-    with col1:
-        st.markdown("### Churn Rate por Perfil")
-        fig, ax = dark_fig((8,5))
-        cp = df.groupby('profile')['churned'].mean().sort_values(ascending=False)*100
-        colors_p = [PALETTE[5] if v>20 else PALETTE[0] for v in cp.values]
-        ax.bar(cp.index, cp.values, color=colors_p, alpha=0.85)
-        ax.axhline(churn_rt, color='#2d3748', linestyle='--', alpha=0.5, label=f'Média {churn_rt:.1f}%')
-        ax.set_ylabel('%', color='#475569')
-        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
-        for i,v in enumerate(cp.values):
-            ax.text(i, v+0.3, f'{v:.1f}%', ha='center', color='#cbd5e1', fontsize=10)
+    with col_main:
+        st.markdown("## Churn Rate por Perfil")
+        fig, ax = dark_fig((10, 4))
+        cp = df.groupby('profile')['churned'].mean().sort_values(ascending=True) * 100
+        bars = ax.barh(cp.index, cp.values, color=[
+            PALETTE[0] if v < churn_rt else PALETTE[4] for v in cp.values
+        ], alpha=0.9, height=0.55)
+        ax.axvline(churn_rt, color=PALETTE[1], linestyle='--', linewidth=1.5,
+                   label=f'Média {churn_rt:.1f}%', alpha=0.8)
+        for bar, v in zip(bars, cp.values):
+            ax.text(v + 0.3, bar.get_y() + bar.get_height()/2,
+                    f'{v:.1f}%', va='center', color='#cbd5e1', fontsize=10)
+        ax.set_xlabel('Churn Rate (%)', color='#475569')
+        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1', fontsize=9)
+        ax.set_xlim(0, cp.max() * 1.2)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
-    with col2:
-        st.markdown("### Distribuição de Risco")
-        fig, ax = dark_fig((8,5))
-        rc = df['churn_risk'].value_counts().reindex(['Baixo','Médio','Alto','Crítico'])
-        colors_r = [PALETTE[3],PALETTE[4],PALETTE[1],PALETTE[5]]
-        ax.bar(rc.index, rc.values, color=colors_r, alpha=0.85)
-        ax.set_ylabel('Clientes', color='#475569')
-        for i,v in enumerate(rc.values):
-            ax.text(i, v+30, f'{v:,}', ha='center', color='#cbd5e1', fontsize=10)
+    with col_side:
+        st.markdown("## Distribuição de Risco")
+        fig, ax = dark_fig((4, 4))
+        rc = df['churn_risk'].value_counts().reindex(['Crítico','Alto','Médio','Baixo'])
+        colors_r = [PALETTE[4], PALETTE[1], PALETTE[2], PALETTE[3]]
+        wedges, texts, autotexts = ax.pie(
+            rc.values, labels=rc.index, colors=colors_r,
+            autopct='%1.0f%%', startangle=90,
+            wedgeprops={'edgecolor':'#06080f','linewidth':2},
+            pctdistance=0.75)
+        for t in texts:     t.set_color('#94a3b8'); t.set_fontsize(9)
+        for t in autotexts: t.set_color('#f1f5f9'); t.set_fontsize(9); t.set_fontweight('bold')
+        ax.set_facecolor('#06080f')
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
-    col3, col4 = st.columns(2)
 
-    with col3:
-        st.markdown("### Churn Rate por Nº de Produtos")
-        fig, ax = dark_fig((8,4))
-        cp2 = df.groupby('products')['churned'].mean()*100
-        ax.plot(cp2.index, cp2.values, marker='o', color=PALETTE[0], linewidth=2.5, markersize=8)
+    # ── Linha 3: 3 colunas iguais ───────────────────────────
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.markdown("## Churn × Produtos")
+        fig, ax = dark_fig((5, 3.5))
+        cp2 = df.groupby('products')['churned'].mean() * 100
         ax.fill_between(cp2.index, cp2.values, alpha=0.15, color=PALETTE[0])
-        ax.set_xlabel('Produtos', color='#475569')
-        ax.set_ylabel('%', color='#475569')
+        ax.plot(cp2.index, cp2.values, marker='o', color=PALETTE[0],
+                linewidth=2, markersize=6)
+        ax.set_xlabel('Nº de Produtos', color='#475569', fontsize=10)
+        ax.set_ylabel('Churn %', color='#475569', fontsize=10)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
-    with col4:
-        st.markdown("### Top Features de Churn (SHAP)")
-        fig, ax = dark_fig((8,4))
-        top10 = shap_imp.head(10)
-        ax.barh(top10['feature'][::-1], top10['mean_shap'][::-1],
-                color=PALETTE[0], alpha=0.85)
-        ax.set_xlabel('Mean |SHAP value|', color='#475569')
+    with c2:
+        st.markdown("## Churn × NPS")
+        fig, ax = dark_fig((5, 3.5))
+        df['nps_group'] = pd.cut(df['nps_score'], bins=[-1,6,8,10],
+                                  labels=['Detrator
+(0-6)','Neutro
+(7-8)','Promotor
+(9-10)'])
+        cn = df.groupby('nps_group', observed=True)['churned'].mean() * 100
+        ax.bar(cn.index, cn.values,
+               color=[PALETTE[4], PALETTE[1], PALETTE[3]], alpha=0.9, width=0.5)
+        for i, v in enumerate(cn.values):
+            ax.text(i, v + 0.3, f'{v:.1f}%', ha='center', color='#cbd5e1', fontsize=10)
+        ax.set_ylabel('Churn %', color='#475569', fontsize=10)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
-# ── PAGE 2: RFM e Clusters ──────────────────────────────────
+    with c3:
+        st.markdown("## Top Features SHAP")
+        fig, ax = dark_fig((5, 3.5))
+        top8 = shap_imp.head(8)
+        ax.barh(top8['feature'][::-1], top8['mean_shap'][::-1],
+                color=PALETTE[0], alpha=0.85, height=0.6)
+        ax.set_xlabel('Mean |SHAP|', color='#475569', fontsize=10)
+        plt.tight_layout(); st.pyplot(fig); plt.close()
+
 elif page == "🔵 Análise RFM e Clusters":
-    st.title("🔵 Análise RFM e Segmentação de Clusters")
+
+    st.title("Segmentação RFM & Clusters")
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>K-Means sobre features RFM + comportamentais · 5 segmentos identificados</p>", unsafe_allow_html=True)
     st.markdown("---")
 
-    col1, col2 = st.columns(2)
+    # ── Linha 1: tabela larga + pizza ───────────────────────
+    col_tbl, col_pie = st.columns([6, 4])
 
-    with col1:
-        st.markdown("### Segmentos RFM")
-        fig, ax = dark_fig((8,5))
-        seg_counts = df['RFM_segment'].value_counts()
-        seg_churn  = df.groupby('RFM_segment')['churned'].mean()*100
-        colors_s   = [PALETTE[5] if seg_churn.get(s,0)>20 else PALETTE[0] for s in seg_counts.index]
-        ax.bar(seg_counts.index, seg_counts.values, color=colors_s, alpha=0.85)
-        ax.set_ylabel('Clientes', color='#475569')
-        ax2 = ax.twinx()
-        ax2.plot(seg_counts.index, [seg_churn.get(s,0) for s in seg_counts.index],
-                 marker='D', color=PALETTE[5], linewidth=2, markersize=8, label='Churn%')
-        ax2.set_ylabel('Churn Rate (%)', color=PALETTE[5])
-        ax2.tick_params(colors=PALETTE[5])
-        ax2.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
-        for spine in ax2.spines.values(): spine.set_edgecolor('#1a2234')
-        ax2.set_facecolor('#111827')
-        plt.tight_layout(); st.pyplot(fig); plt.close()
+    with col_tbl:
+        st.markdown("## Perfil dos Segmentos")
+        cluster_stats = df.groupby('cluster_name').agg(
+            Clientes       = ('customer_id','count'),
+            Churn_Rate     = ('churned','mean'),
+            RFM_Score      = ('RFM_score','mean'),
+            Produtos       = ('products','mean'),
+            Saldo_Médio    = ('avg_balance','mean'),
+            Engagement     = ('engagement_score','mean'),
+            NPS            = ('nps_score','mean'),
+        ).round(2)
+        cluster_stats['Churn_Rate'] = (cluster_stats['Churn_Rate'] * 100).round(1).astype(str) + '%'
+        st.dataframe(cluster_stats.style.background_gradient(
+            subset=['RFM_Score','Produtos','Engagement'], cmap='Blues'),
+            use_container_width=True)
 
-    with col2:
-        st.markdown("### Distribuição RFM Score")
-        fig, ax = dark_fig((8,5))
-        for churn_val, color, name in [(0,PALETTE[0],'Ativo'),(1,PALETTE[5],'Churn')]:
-            vals = df[df['churned']==churn_val]['RFM_score']
-            ax.hist(vals, bins=20, alpha=0.6, color=color, label=name, density=True)
-        ax.set_xlabel('RFM Score', color='#475569')
-        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
+    with col_pie:
+        st.markdown("## Distribuição por Cluster")
+        fig, ax = dark_fig((5, 5))
+        sz = df['cluster_name'].value_counts()
+        wedges, texts, autotexts = ax.pie(
+            sz.values, labels=sz.index,
+            colors=PALETTE[:len(sz)], autopct='%1.0f%%',
+            startangle=90,
+            wedgeprops={'edgecolor':'#06080f','linewidth':2},
+            pctdistance=0.78)
+        for t in texts:     t.set_color('#94a3b8'); t.set_fontsize(8)
+        for t in autotexts: t.set_color('#f1f5f9'); t.set_fontweight('bold'); t.set_fontsize(9)
+        ax.set_facecolor('#06080f')
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
-    st.markdown("### Perfil dos Clusters")
 
-    cluster_stats = df.groupby('cluster_name').agg(
-        Clientes       = ('customer_id','count'),
-        Churn_Rate     = ('churned','mean'),
-        Avg_RFM        = ('RFM_score','mean'),
-        Avg_Produtos   = ('products','mean'),
-        Avg_Saldo      = ('avg_balance','mean'),
-        Avg_Engagement = ('engagement_score','mean'),
-        Avg_NPS        = ('nps_score','mean'),
-    ).round(2)
-    cluster_stats['Churn_Rate'] = (cluster_stats['Churn_Rate']*100).round(1).astype(str)+'%'
-    st.dataframe(cluster_stats.style.background_gradient(
-        subset=['Avg_RFM','Avg_Produtos','Avg_Engagement'], cmap='Blues'),
-        use_container_width=True)
+    # ── Linha 2: scatter largo (8) + churn por cluster (4) ──
+    col_sc, col_bar = st.columns([8, 4])
 
-    st.markdown("---")
-    col3, col4 = st.columns(2)
-
-    with col3:
-        st.markdown("### Churn Rate por Cluster")
-        fig, ax = dark_fig((8,5))
-        cc = df.groupby('cluster_name')['churned'].mean().sort_values(ascending=False)*100
-        colors_c = [PALETTE[5] if v>25 else PALETTE[4] if v>12 else PALETTE[0] for v in cc.values]
-        ax.barh(cc.index, cc.values, color=colors_c, alpha=0.85)
-        ax.set_xlabel('%', color='#475569')
-        for i,v in enumerate(cc.values):
-            ax.text(v+0.2, i, f'{v:.1f}%', va='center', color='#cbd5e1', fontsize=9)
-        plt.tight_layout(); st.pyplot(fig); plt.close()
-
-    with col4:
-        st.markdown("### Scatter: Engagement vs RFM")
-        fig, ax = dark_fig((8,5))
-        cluster_ids = df['cluster'].unique()
-        for i, cid in enumerate(sorted(cluster_ids)):
-            mask = df['cluster']==cid
+    with col_sc:
+        st.markdown("## Mapa de Engajamento × RFM")
+        fig, ax = dark_fig((10, 5))
+        for i, cid in enumerate(sorted(df['cluster'].unique())):
+            mask = df['cluster'] == cid
+            name = cluster_names.get(cid, f'C{cid}')
             ax.scatter(df[mask]['engagement_score'], df[mask]['RFM_score'],
-                      color=PALETTE[i%len(PALETTE)], alpha=0.3, s=8,
-                      label=cluster_names.get(cid, f'C{cid}'))
+                      color=PALETTE[i % len(PALETTE)], alpha=0.25, s=12, label=name)
         ax.set_xlabel('Engagement Score', color='#475569')
         ax.set_ylabel('RFM Score', color='#475569')
-        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1', fontsize=8, markerscale=3)
+        leg = ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1',
+                        fontsize=9, markerscale=3, framealpha=0.8)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
-# ── PAGE 3: Score Individual ─────────────────────────────────
-elif page == "🔴 Score Individual":
-    st.title("🔴 Score de Churn — Cliente Individual")
-    st.markdown("Preencha os dados do cliente para calcular o risco de churn em tempo real.")
+    with col_bar:
+        st.markdown("## Churn por Cluster")
+        fig, ax = dark_fig((5, 5))
+        cc = df.groupby('cluster_name')['churned'].mean().sort_values() * 100
+        colors_c = [PALETTE[4] if v > 25 else PALETTE[1] if v > 12 else PALETTE[3]
+                    for v in cc.values]
+        ax.barh(cc.index, cc.values, color=colors_c, alpha=0.9, height=0.55)
+        ax.set_xlabel('%', color='#475569')
+        for i, v in enumerate(cc.values):
+            ax.text(v + 0.3, i, f'{v:.1f}%', va='center', color='#cbd5e1', fontsize=9)
+        plt.tight_layout(); st.pyplot(fig); plt.close()
+
     st.markdown("---")
 
-    col_in, col_out = st.columns([1, 2])
+    # ── Linha 3: scores RFM em 3 colunas ────────────────────
+    st.markdown("## Distribuição dos Scores RFM por Status")
+    r1, r2, r3 = st.columns(3)
+    for col_r, (score, label) in zip([r1,r2,r3],
+        [('R_score','Recency'), ('F_score','Frequency'), ('M_score','Monetary')]):
+        with col_r:
+            fig, ax = dark_fig((5, 3))
+            for cv, color, name in [(0,PALETTE[0],'Ativo'),(1,PALETTE[4],'Churn')]:
+                counts = df[df['churned']==cv][score].value_counts().sort_index()
+                ax.bar(counts.index + (0.2 if cv==1 else -0.2),
+                       counts.values, 0.35, label=name, color=color, alpha=0.85)
+            ax.set_title(label, color='#cbd5e1', fontsize=11)
+            ax.set_xlabel('Score (1=pior, 5=melhor)', color='#475569', fontsize=9)
+            ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1', fontsize=8)
+            plt.tight_layout(); st.pyplot(fig); plt.close()
 
-    with col_in:
-        st.markdown("### 📝 Dados do Cliente")
-        age_v        = st.slider("Idade", 18, 65, 35)
-        tenure_v     = st.slider("Tempo de Casa (meses)", 1, 72, 12)
-        products_v   = st.slider("Nº de Produtos", 1, 9, 2)
-        monthly_txn_v= st.slider("Transações/Mês", 0, 60, 10)
-        login_days_v = st.slider("Dias de Login/Mês", 0, 30, 10)
-        last_txn_v   = st.slider("Dias desde última transação", 0, 120, 15)
-        support_v    = st.slider("Chamadas de Suporte (último mês)", 0, 10, 1)
-        nps_v        = st.slider("NPS Score", 0, 10, 7)
-        balance_v    = st.number_input("Saldo Médio (R$)", 0, 200000, 5000, 500)
-        cc_spend_v   = st.number_input("Gasto Cartão/Mês (R$)", 0, 50000, 1500, 100)
-        pix_v        = st.slider("Transações PIX/Mês", 0, 40, 5)
-        inv_v        = st.checkbox("Possui Investimento?")
-        ins_v        = st.checkbox("Possui Seguro?")
-        loan_v       = st.checkbox("Possui Empréstimo?")
+elif page == "🔴 Score Individual":
 
-    with col_out:
-        # Calcular features derivadas
+    st.title("Score de Churn Individual")
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Insira os dados do cliente para calcular o risco em tempo real</p>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # ── Layout: inputs (4) + resultado (8) ──────────────────
+    col_form, col_result = st.columns([4, 8])
+
+    with col_form:
+        st.markdown("## Dados do Cliente")
+
+        with st.expander("📊 Comportamento", expanded=True):
+            monthly_txn_v = st.slider("Transações/Mês", 0, 60, 10)
+            login_days_v  = st.slider("Dias de Login/Mês", 0, 30, 10)
+            last_txn_v    = st.slider("Dias desde última transação", 0, 120, 15)
+            pix_v         = st.slider("Transações PIX/Mês", 0, 40, 5)
+
+        with st.expander("👤 Perfil", expanded=True):
+            age_v     = st.slider("Idade", 18, 65, 35)
+            tenure_v  = st.slider("Tempo de Casa (meses)", 1, 72, 12)
+            products_v= st.slider("Nº de Produtos", 1, 9, 2)
+            support_v = st.slider("Chamadas de Suporte", 0, 10, 1)
+            nps_v     = st.slider("NPS Score", 0, 10, 7)
+
+        with st.expander("💰 Financeiro", expanded=True):
+            balance_v  = st.number_input("Saldo Médio (R$)", 0, 200000, 5000, 500)
+            cc_spend_v = st.number_input("Gasto Cartão/Mês (R$)", 0, 50000, 1500, 100)
+            inv_v  = st.checkbox("Possui Investimento?")
+            ins_v  = st.checkbox("Possui Seguro?")
+            loan_v = st.checkbox("Possui Empréstimo?")
+
+    with col_result:
+        # Calcular scores
         def calc_r_score(v):
-            if v <= 5:   return 5
+            if v <= 5:    return 5
             elif v <= 15: return 4
             elif v <= 30: return 3
             elif v <= 60: return 2
             else:         return 1
+
         r_score = calc_r_score(last_txn_v)
         f_score = min(5, max(1, int(monthly_txn_v / 12) + 1))
         m_val   = balance_v + cc_spend_v
         m_score = min(5, max(1, int(m_val / 15000) + 1))
         rfm_s   = r_score + f_score + m_score
         eng     = round(
-            login_days_v/30*0.3 +
-            min(monthly_txn_v/60,1)*0.3 +
-            products_v/9*0.2 +
-            max(0, 1-last_txn_v/120)*0.2, 4)
+            login_days_v/30*0.3 + min(monthly_txn_v/60,1)*0.3 +
+            products_v/9*0.2 + max(0, 1-last_txn_v/120)*0.2, 4)
         prod_d  = products_v/9
         bal_tr  = 1 if balance_v > 5000 else 0
 
@@ -635,61 +676,69 @@ elif page == "🔴 Score Individual":
         risk    = 'Crítico' if prob>0.8 else 'Alto' if prob>0.5 else 'Médio' if prob>0.2 else 'Baixo'
         rfm_seg = 'Champions' if rfm_s>=13 else 'Loyal' if rfm_s>=10 else 'Potential' if rfm_s>=7 else 'At Risk' if rfm_s>=5 else 'Lost'
 
-        c1,c2,c3,c4 = st.columns(4)
-        with c1: st.metric("Prob. Churn", f"{prob*100:.1f}%")
-        with c2: st.metric("Score Retenção", f"{score}")
-        with c3: st.metric("Risco", risk)
-        with c4: st.metric("Segmento RFM", rfm_seg)
+        # ── KPIs do resultado ───────────────────────────────
+        st.markdown("## Resultado da Análise")
+        m1, m2, m3, m4 = st.columns(4)
+        with m1: st.metric("Prob. Churn",     f"{prob*100:.1f}%")
+        with m2: st.metric("Score Retenção",  f"{score}")
+        with m3: st.metric("Nível de Risco",  risk)
+        with m4: st.metric("Segmento RFM",    rfm_seg)
 
         badge_cls = 'badge-high' if risk in ['Crítico','Alto'] else 'badge-med' if risk=='Médio' else 'badge-low'
-        st.markdown(f"<div class='{badge_cls}'>{'🔴 ALTO RISCO DE CHURN' if risk in ['Crítico','Alto'] else '🟡 RISCO MODERADO' if risk=='Médio' else '🟢 BAIXO RISCO'}</div>", unsafe_allow_html=True)
+        label_b   = '⚠ ALTO RISCO DE CHURN' if risk in ['Crítico','Alto'] else '— RISCO MODERADO' if risk=='Médio' else '✓ BAIXO RISCO'
+        st.markdown(f"<br><div class='{badge_cls}'>{label_b}</div><br>", unsafe_allow_html=True)
 
         st.markdown("---")
-        tab1, tab2 = st.tabs(["📊 SHAP — Fatores de Risco", "📋 Perfil RFM"])
 
-        with tab1:
+        # ── Linha: gauge (prob) + SHAP + RFM ───────────────
+        g1, g2 = st.columns([5, 5])
+
+        with g1:
+            st.markdown("## Fatores de Risco (SHAP)")
             explainer_local = shap.TreeExplainer(model)
-            sv_local = explainer_local(instance)
-            shap_v   = sv_local.values[0]
-            sorted_i = np.argsort(np.abs(shap_v))[::-1][:10]
-            feats_s  = [FEATURES[i] for i in sorted_i]
-            vals_s   = shap_v[sorted_i]
-            fig, ax  = dark_fig((9,5))
-            ax.barh(feats_s[::-1], vals_s[::-1],
-                    color=['#f87171' if v>0 else '#60a5fa' for v in vals_s[::-1]], alpha=0.85)
-            ax.axvline(0, color='#2d3748', linewidth=0.8, alpha=0.5)
-            ax.set_title('Fatores que contribuem para o risco', color='#cbd5e1')
-            ax.set_xlabel('SHAP value (+ aumenta risco)', color='#475569')
+            sv_local  = explainer_local(instance)
+            shap_v    = sv_local.values[0]
+            sorted_i  = np.argsort(np.abs(shap_v))[::-1][:10]
+            feats_s   = [FEATURES[i] for i in sorted_i]
+            vals_s    = shap_v[sorted_i]
+            fig, ax   = dark_fig((6, 5))
+            colors_sh = [PALETTE[4] if v>0 else PALETTE[0] for v in vals_s[::-1]]
+            ax.barh(feats_s[::-1], vals_s[::-1], color=colors_sh, alpha=0.9, height=0.6)
+            ax.axvline(0, color='#2d3748', linewidth=1)
+            ax.set_xlabel('SHAP value', color='#475569', fontsize=10)
             plt.tight_layout(); st.pyplot(fig); plt.close()
 
-        with tab2:
-            rfm_data = {
-                'Métrica': ['Recency Score','Frequency Score','Monetary Score','RFM Total','Engagement','Segmento'],
-                'Valor':   [f'{r_score}/5', f'{f_score}/5', f'{m_score}/5', f'{rfm_s}/15', f'{eng:.3f}', rfm_seg]
-            }
-            st.dataframe(pd.DataFrame(rfm_data), use_container_width=True)
-
-            fig, ax = dark_fig((7,4))
-            scores  = [r_score, f_score, m_score]
-            labels  = ['Recency\n(5=recente)', 'Frequency\n(5=frequente)', 'Monetary\n(5=alto valor)']
-            colors_rfm = [PALETTE[3] if v>=4 else PALETTE[4] if v>=3 else PALETTE[5] for v in scores]
-            ax.bar(labels, scores, color=colors_rfm, alpha=0.85)
-            ax.set_ylim(0, 5.5)
-            ax.set_ylabel('Score', color='#475569')
-            ax.set_title('Scores RFM do Cliente', color='#cbd5e1')
-            for i,v in enumerate(scores):
-                ax.text(i, v+0.1, f'{v}/5', ha='center', color='#cbd5e1', fontsize=12, fontweight='bold')
+        with g2:
+            st.markdown("## Perfil RFM")
+            fig, ax = dark_fig((6, 3))
+            scores_rfm  = [r_score, f_score, m_score]
+            labels_rfm  = ['Recency', 'Frequency', 'Monetary']
+            colors_rfm  = [PALETTE[3] if v>=4 else PALETTE[1] if v>=3 else PALETTE[4] for v in scores_rfm]
+            bars = ax.bar(labels_rfm, scores_rfm, color=colors_rfm, alpha=0.9, width=0.45)
+            ax.set_ylim(0, 6)
+            ax.set_ylabel('Score (1-5)', color='#475569', fontsize=10)
+            for bar, v in zip(bars, scores_rfm):
+                ax.text(bar.get_x()+bar.get_width()/2, v+0.1,
+                        f'{v}/5', ha='center', color='#f1f5f9', fontsize=13, fontweight='bold')
+            ax.axhline(3, color='#2d3748', linewidth=1, linestyle='--', alpha=0.6)
             plt.tight_layout(); st.pyplot(fig); plt.close()
 
-# ── PAGE 4: Plano de Intervenção ────────────────────────────
+            st.markdown("---")
+            rfm_data = pd.DataFrame({
+                'Métrica': ['RFM Total','Engagement','Segmento','Produtos'],
+                'Valor':   [f'{rfm_s}/15', f'{eng:.3f}', rfm_seg, f'{products_v}']
+            })
+            st.dataframe(rfm_data, use_container_width=True, hide_index=True)
+
 elif page == "🎯 Plano de Intervenção":
-    st.title("🎯 Plano de Intervenção por Segmento")
-    st.markdown("Ações de retenção priorizadas por cluster, baseadas nos principais drivers de churn.")
+
+    st.title("Plano de Retenção por Segmento")
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Ações priorizadas por cluster · Baseadas nos principais drivers de churn</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     intervention_map = {
         'Alto Risco': {
-            'prioridade':'🔴 Crítica','cor':PALETTE[5],
+            'prioridade':'🔴 Crítica','cor':PALETTE[4],
             'acoes':[
                 '🚨 Contato proativo via gerente de conta em até 48h',
                 '💰 Cashback personalizado de 3-5% por 60 dias',
@@ -699,7 +748,7 @@ elif page == "🎯 Plano de Intervenção":
             ],'triggers':['login_days_month','support_calls','last_txn_days_ago']
         },
         'Risco Moderado': {
-            'prioridade':'🟠 Alta','cor':PALETTE[4],
+            'prioridade':'🟠 Alta','cor':PALETTE[1],
             'acoes':[
                 '📱 Campanha de reengajamento no app',
                 '🎁 Oferta de produto complementar com benefício exclusivo',
@@ -709,11 +758,11 @@ elif page == "🎯 Plano de Intervenção":
             ],'triggers':['engagement_score','monthly_txn','nps_score']
         },
         'Ocasional': {
-            'prioridade':'🟡 Média','cor':PALETTE[1],
+            'prioridade':'🟡 Média','cor':PALETTE[2],
             'acoes':[
                 '📊 E-mail mensal com resumo financeiro personalizado',
                 '🏆 Missões gamificadas para aumentar engajamento',
-                '🤝 Programa de indicação: benefício para cliente e indicado',
+                '🤝 Programa de indicação com benefício mútuo',
                 '📈 Oferta de produto de investimento alinhado ao perfil',
                 '🎯 Desafio mensal com recompensa em cashback',
             ],'triggers':['F_score','engagement_score','products']
@@ -722,7 +771,7 @@ elif page == "🎯 Plano de Intervenção":
             'prioridade':'🟢 Baixa','cor':PALETTE[3],
             'acoes':[
                 '📣 Convite para grupo exclusivo de feedback de produto',
-                '💎 Acesso antecipado a novos produtos e funcionalidades',
+                '💎 Acesso antecipado a novos produtos',
                 '🎯 Upgrades de limite por lealdade comprovada',
                 '🌟 Programa de embaixadores com benefícios exclusivos',
             ],'triggers':['RFM_score','products','nps_score']
@@ -731,7 +780,7 @@ elif page == "🎯 Plano de Intervenção":
             'prioridade':'🔵 Monitoramento','cor':PALETTE[0],
             'acoes':[
                 '💎 Gerente dedicado com atendimento prioritário',
-                '🌟 Programa VIP com benefícios exclusivos e personalizados',
+                '🌟 Programa VIP com benefícios personalizados',
                 '🎁 Gifts e experiências exclusivas em datas especiais',
                 '📈 Consultoria financeira personalizada trimestral',
             ],'triggers':['M_score','products','tenure_months']
@@ -747,65 +796,86 @@ elif page == "🎯 Plano de Intervenção":
         receita_risco= ('M', lambda x: x[df.loc[x.index,'churn_risk'].isin(['Alto','Crítico'])].sum()),
     ).round(2)
 
-    # Métricas gerais
-    total_risco = (df['churn_risk'].isin(['Alto','Crítico'])).sum()
-    receita_total = df[df['churn_risk'].isin(['Alto','Crítico'])]['M'].sum()
+    total_risco    = (df['churn_risk'].isin(['Alto','Crítico'])).sum()
+    receita_total  = df[df['churn_risk'].isin(['Alto','Crítico'])]['M'].sum()
 
-    c1,c2,c3 = st.columns(3)
-    with c1: st.metric("Clientes em Risco (Alto+Crítico)", f"{total_risco:,}")
-    with c2: st.metric("Receita em Risco (R$)", f"{receita_total/1e6:.1f}M")
-    with c3: st.metric("Segmentos Monitorados", f"{df['cluster_name'].nunique()}")
+    # ── Linha 1: 3 KPIs + matriz de priorização (lado a lado) ─
+    col_kpi, col_matrix = st.columns([4, 8])
+
+    with col_kpi:
+        st.markdown("## Visão Geral")
+        st.metric("Em Risco (Alto+Crítico)", f"{total_risco:,}")
+        st.metric("Receita Exposta", f"R$ {receita_total/1e6:.1f}M")
+        st.metric("Segmentos Ativos", f"{df['cluster_name'].nunique()}")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("## Filtrar Segmento")
+        seg_selecionado = st.selectbox("", ['Todos'] + sorted(df['cluster_name'].unique().tolist()))
+
+    with col_matrix:
+        st.markdown("## Matriz de Priorização")
+        priority_order = {'🔴 Crítica':4,'🟠 Alta':3,'🟡 Média':2,'🟢 Baixa':1,'🔵 Monitoramento':0}
+        priority_color_map = {
+            '🔴 Crítica':PALETTE[4],'🟠 Alta':PALETTE[1],'🟡 Média':PALETTE[2],
+            '🟢 Baixa':PALETTE[3],'🔵 Monitoramento':PALETTE[0]}
+
+        fig, ax = dark_fig((9, 5))
+        for seg in df['cluster_name'].unique():
+            if seg not in intervention_map or seg not in cluster_summary.index: continue
+            plan  = intervention_map[seg]
+            stats = cluster_summary.loc[seg]
+            size  = max(200, int(stats['receita_risco']/5000))
+            ax.scatter(stats['churn_rate']*100,
+                       int(stats['criticos'])+int(stats['alto_risco']),
+                       color=priority_color_map[plan['prioridade']],
+                       s=size, alpha=0.85, edgecolors='#2d3748', linewidths=1.5, zorder=5)
+            ax.annotate(seg, (stats['churn_rate']*100,
+                              int(stats['criticos'])+int(stats['alto_risco'])),
+                        xytext=(8,6), textcoords='offset points',
+                        color='#cbd5e1', fontsize=9)
+        ax.set_xlabel('Churn Rate (%)', color='#475569')
+        ax.set_ylabel('Clientes em Risco', color='#475569')
+        ax.text(0.98, 0.04, '● tamanho = receita exposta', transform=ax.transAxes,
+                ha='right', color='#475569', fontsize=8)
+        plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
 
-    # Filtro de segmento
-    seg_selecionado = st.selectbox("Filtrar por segmento:", ['Todos'] + sorted(df['cluster_name'].unique().tolist()))
-
+    # ── Linha 2: cards de intervenção ────────────────────────
+    st.markdown("## Planos de Ação")
     segs_to_show = df['cluster_name'].unique() if seg_selecionado == 'Todos' else [seg_selecionado]
 
     for seg in segs_to_show:
-        if seg not in intervention_map:
-            continue
+        if seg not in intervention_map: continue
         plan  = intervention_map[seg]
         stats = cluster_summary.loc[seg] if seg in cluster_summary.index else None
 
         with st.expander(f"{plan['prioridade']} — {seg}", expanded=(seg_selecionado != 'Todos')):
             if stats is not None:
-                c1,c2,c3,c4 = st.columns(4)
-                with c1: st.metric("Total Clientes", f"{int(stats['total']):,}")
-                with c2: st.metric("Churn Rate", f"{stats['churn_rate']*100:.1f}%")
-                with c3: st.metric("Críticos", f"{int(stats['criticos']):,}")
-                with c4: st.metric("Receita em Risco", f"R$ {stats['receita_risco']/1e3:.0f}k")
+                e1,e2,e3,e4 = st.columns(4)
+                with e1: st.metric("Clientes",      f"{int(stats['total']):,}")
+                with e2: st.metric("Churn Rate",    f"{stats['churn_rate']*100:.1f}%")
+                with e3: st.metric("Críticos",      f"{int(stats['criticos']):,}")
+                with e4: st.metric("Receita Risco", f"R$ {stats['receita_risco']/1e3:.0f}k")
 
-            st.markdown("**🔍 Principais triggers de churn:**")
-            st.markdown(" · ".join([f"`{t}`" for t in plan['triggers']]))
+            left, right = st.columns([5, 5])
+            with left:
+                st.markdown("**Triggers principais:**")
+                st.markdown(" · ".join([f"`{t}`" for t in plan['triggers']]))
+                st.markdown("<br>**Ações recomendadas:**", unsafe_allow_html=True)
+                for acao in plan['acoes']:
+                    st.markdown(f"<div class='action-box'>{acao}</div>", unsafe_allow_html=True)
 
-            st.markdown("**✅ Ações recomendadas:**")
-            for acao in plan['acoes']:
-                st.markdown(f"<div class='action-box'>{acao}</div>", unsafe_allow_html=True)
+            with right:
+                if stats is not None:
+                    fig, ax = dark_fig((5, 3.5))
+                    risco_seg = df[df['cluster_name']==seg]['churn_risk'].value_counts().reindex(
+                        ['Baixo','Médio','Alto','Crítico'], fill_value=0)
+                    colors_rs = [PALETTE[3],PALETTE[1],PALETTE[2],PALETTE[4]]
+                    ax.barh(risco_seg.index, risco_seg.values, color=colors_rs, alpha=0.9, height=0.5)
+                    ax.set_xlabel('Clientes', color='#475569', fontsize=9)
+                    ax.set_title('Distribuição de Risco', color='#cbd5e1', fontsize=10)
+                    for i, v in enumerate(risco_seg.values):
+                        if v > 0: ax.text(v+1, i, str(v), va='center', color='#cbd5e1', fontsize=9)
+                    plt.tight_layout(); st.pyplot(fig); plt.close()
 
-    st.markdown("---")
-    st.markdown("### 📊 Matriz de Priorização")
-    fig, ax = dark_fig((12,6))
-    priority_order = {'🔴 Crítica':4,'🟠 Alta':3,'🟡 Média':2,'🟢 Baixa':1,'🔵 Monitoramento':0}
-    priority_color_map = {'🔴 Crítica':PALETTE[5],'🟠 Alta':PALETTE[4],'🟡 Média':PALETTE[1],
-                          '🟢 Baixa':PALETTE[3],'🔵 Monitoramento':PALETTE[0]}
-
-    for seg in segs_to_show:
-        if seg not in intervention_map or seg not in cluster_summary.index: continue
-        plan  = intervention_map[seg]
-        stats = cluster_summary.loc[seg]
-        ax.scatter(stats['churn_rate']*100,
-                   int(stats['criticos'])+int(stats['alto_risco']),
-                   color=priority_color_map[plan['prioridade']],
-                   s=400, alpha=0.85, edgecolors='white', linewidths=1.5,
-                   zorder=5)
-        ax.annotate(seg, (stats['churn_rate']*100,
-                          int(stats['criticos'])+int(stats['alto_risco'])),
-                    xytext=(8,4), textcoords='offset points',
-                    color='#cbd5e1', fontsize=9)
-
-    ax.set_xlabel('Churn Rate (%)', color='#475569')
-    ax.set_ylabel('Clientes em Risco (Alto + Crítico)', color='#475569')
-    ax.set_title('Priorização: Churn Rate vs Volume em Risco', color='#cbd5e1')
-    plt.tight_layout(); st.pyplot(fig); plt.close()
