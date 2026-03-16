@@ -531,18 +531,17 @@ elif page == "🔵 Análise RFM e Clusters":
     st.markdown("---")
 
     # ── Linha 1: tabela larga + pizza ───────────────────────
-    col_tbl, col_pie = st.columns([6, 4])
+    col_tbl, col_pie = st.columns([7, 3])
 
     with col_tbl:
         st.markdown("## Perfil dos Segmentos")
         cluster_stats = df.groupby('cluster_name').agg(
-            Clientes       = ('customer_id','count'),
-            Churn_Rate     = ('churned','mean'),
-            RFM_Score      = ('RFM_score','mean'),
-            Produtos       = ('products','mean'),
-            Saldo_Médio    = ('avg_balance','mean'),
-            Engagement     = ('engagement_score','mean'),
-            NPS            = ('nps_score','mean'),
+            Clientes    = ('customer_id','count'),
+            Churn_Rate  = ('churned','mean'),
+            RFM_Score   = ('RFM_score','mean'),
+            Produtos    = ('products','mean'),
+            Engagement  = ('engagement_score','mean'),
+            NPS         = ('nps_score','mean'),
         ).round(2)
         cluster_stats['Churn_Rate'] = (cluster_stats['Churn_Rate'] * 100).round(1).astype(str) + '%'
         st.dataframe(cluster_stats.style.background_gradient(
@@ -550,18 +549,21 @@ elif page == "🔵 Análise RFM e Clusters":
             use_container_width=True)
 
     with col_pie:
-        st.markdown("## Distribuição por Cluster")
-        fig, ax = dark_fig((5, 5))
+        st.markdown("## Distribuição")
+        fig, ax = plt.subplots(figsize=(3.5, 3.5), facecolor='#06080f')
+        ax.set_facecolor('#06080f')
         sz = df['cluster_name'].value_counts()
         wedges, texts, autotexts = ax.pie(
-            sz.values, labels=sz.index,
+            sz.values, labels=None,
             colors=PALETTE[:len(sz)], autopct='%1.0f%%',
             startangle=90,
-            wedgeprops={'edgecolor':'#06080f','linewidth':2},
-            pctdistance=0.78)
-        for t in texts:     t.set_color('#94a3b8'); t.set_fontsize(8)
-        for t in autotexts: t.set_color('#f1f5f9'); t.set_fontweight('bold'); t.set_fontsize(9)
-        ax.set_facecolor('#06080f')
+            wedgeprops={'edgecolor':'#06080f','linewidth':1.5},
+            pctdistance=0.72)
+        for t in autotexts:
+            t.set_color('#f1f5f9'); t.set_fontweight('bold'); t.set_fontsize(9)
+        ax.legend(sz.index, loc='lower center', bbox_to_anchor=(0.5, -0.28),
+                  ncol=1, facecolor='#06080f', labelcolor='#94a3b8',
+                  fontsize=8, framealpha=0)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
