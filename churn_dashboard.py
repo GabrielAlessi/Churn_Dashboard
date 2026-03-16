@@ -429,7 +429,14 @@ def dark_figs(nrows, ncols, figsize):
 # ── PAGE 1: Visão Geral ─────────────────────────────────────
 if page == "🏠 Visão Geral":
 
-    # ── Header com KPIs inline ──────────────────────────────
+    # ── Variáveis de suporte ─────────────────────────────────
+    total    = len(df)
+    churned  = int(df['churned'].sum())
+    churn_rt = df['churned'].mean() * 100
+    criticos = int((df['churn_risk'] == 'Crítico').sum())
+    alto     = int((df['churn_risk'] == 'Alto').sum())
+
+    # ── Header ──────────────────────────────────────────────
     st.title("Análise Preditiva de Churn")
     st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Banco Digital · 15.000 clientes · Modelo XGBoost · ROC-AUC 0.92</p>", unsafe_allow_html=True)
     st.markdown("---")
