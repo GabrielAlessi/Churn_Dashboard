@@ -53,9 +53,9 @@ st.markdown("""
         font-weight: 700 !important;
         letter-spacing: -0.8px;
         color: #f1f5f9 !important;
-        border-bottom: 2px solid #14b8a6;
-        padding-bottom: 10px;
-        display: inline-block;
+        padding-bottom: 4px;
+        border-left: 4px solid #14b8a6;
+        padding-left: 14px;
     }
     h2 {
         color: #cbd5e1 !important;
@@ -438,7 +438,7 @@ if page == "🏠 Visão Geral":
 
     # ── Header ──────────────────────────────────────────────
     st.title("Análise Preditiva de Churn")
-    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Banco Digital · 15.000 clientes · Modelo XGBoost · ROC-AUC 0.92</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:4px;'>Banco Digital · 15.000 clientes · Modelo XGBoost · ROC-AUC 0.92</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     # ── Linha 1: 5 KPIs lado a lado ─────────────────────────
@@ -527,7 +527,7 @@ if page == "🏠 Visão Geral":
 elif page == "🔵 Análise RFM e Clusters":
 
     st.title("Segmentação RFM & Clusters")
-    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>K-Means sobre features RFM + comportamentais · 5 segmentos identificados</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:4px;'>K-Means sobre features RFM + comportamentais · 5 segmentos identificados</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     # ── Linha 1: tabela larga + pizza ───────────────────────
@@ -643,7 +643,7 @@ elif page == "🔵 Análise RFM e Clusters":
 elif page == "🔴 Score Individual":
 
     st.title("Score de Churn Individual")
-    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Insira os dados do cliente para calcular o risco em tempo real</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:4px;'>Insira os dados do cliente para calcular o risco em tempo real</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     # ── Layout: inputs (4) + resultado (8) ──────────────────
@@ -764,7 +764,7 @@ elif page == "🔴 Score Individual":
 elif page == "🎯 Plano de Intervenção":
 
     st.title("Plano de Retenção por Segmento")
-    st.markdown("<p style='color:#475569;font-size:15px;margin-top:-10px;'>Ações priorizadas por cluster · Baseadas nos principais drivers de churn</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#475569;font-size:15px;margin-top:4px;'>Ações priorizadas por cluster · Baseadas nos principais drivers de churn</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     intervention_map = {
