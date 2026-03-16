@@ -24,182 +24,236 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
     /* ── Base ─────────────────────────────────────────── */
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
+
     .stApp {
-        background: linear-gradient(135deg, #0d0d1a 0%, #0a1628 50%, #0d0d1a 100%);
+        background-color: #06080f;
+        background-image:
+            radial-gradient(ellipse 80% 50% at 20% 10%, rgba(20,184,166,0.07) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 80% 90%, rgba(245,158,11,0.06) 0%, transparent 60%);
         background-attachment: fixed;
     }
 
     /* ── Sidebar ──────────────────────────────────────── */
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0d1117 0%, #161b27 100%);
-        border-right: 1px solid rgba(99,179,237,0.15);
+        background-color: #090c14;
+        border-right: 1px solid #1a2235;
     }
+    section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
+    section[data-testid="stSidebar"] a { color: #14b8a6 !important; }
+    section[data-testid="stSidebar"] h2 { color: #e2e8f0 !important; }
 
     /* ── Tipografia ───────────────────────────────────── */
     h1 {
-        background: linear-gradient(90deg, #63b3ed, #9f7aea, #68d391);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-size: 2.1rem !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 2.2rem !important;
         font-weight: 700 !important;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.8px;
+        color: #f1f5f9 !important;
+        border-bottom: 2px solid #14b8a6;
+        padding-bottom: 10px;
+        display: inline-block;
     }
-    h2, h3 { color: #e2e8f0 !important; font-weight: 600 !important; }
-    p, label, div { color: #a0aec0; }
+    h2 {
+        color: #cbd5e1 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #14b8a6 !important;
+    }
+    h3 { color: #e2e8f0 !important; font-weight: 500 !important; }
+    p, label, div { color: #94a3b8; }
 
     /* ── Metric Cards ─────────────────────────────────── */
     [data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgba(99,179,237,0.08) 0%, rgba(159,122,234,0.08) 100%);
-        border: 1px solid rgba(99,179,237,0.2);
-        border-radius: 14px;
-        padding: 18px;
-        box-shadow: 0 4px 24px rgba(99,179,237,0.06);
-        transition: all 0.3s ease;
+        background-color: #0d1117;
+        border: 1px solid #1e2d3d;
+        border-top: 2px solid #14b8a6;
+        border-radius: 4px 4px 8px 8px;
+        padding: 20px;
+        transition: all 0.25s ease;
     }
     [data-testid="metric-container"]:hover {
-        border-color: rgba(99,179,237,0.5);
-        box-shadow: 0 8px 32px rgba(99,179,237,0.15);
-        transform: translateY(-2px);
+        border-top-color: #f59e0b;
+        background-color: #0f1520;
     }
     [data-testid="metric-container"] label {
-        color: #718096 !important;
+        color: #475569 !important;
         font-size: 11px !important;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 500 !important;
+        letter-spacing: 1.5px;
+        font-weight: 600 !important;
+        font-family: 'DM Mono', monospace !important;
     }
     [data-testid="metric-container"] [data-testid="stMetricValue"] {
-        background: linear-gradient(90deg, #63b3ed, #9f7aea);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-size: 28px !important;
+        color: #f1f5f9 !important;
+        font-size: 30px !important;
         font-weight: 700 !important;
+        font-family: 'DM Mono', monospace !important;
+        letter-spacing: -1px;
     }
 
     /* ── Botões ───────────────────────────────────────── */
     .stButton > button {
-        background: linear-gradient(135deg, #2b6cb0, #553c9a);
-        color: white !important;
-        border: 1px solid rgba(99,179,237,0.3) !important;
-        border-radius: 10px;
+        background-color: transparent !important;
+        color: #14b8a6 !important;
+        border: 1px solid #14b8a6 !important;
+        border-radius: 4px;
         padding: 10px 28px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 13px;
         width: 100%;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(43,108,176,0.3);
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(99,179,237,0.35);
+        background-color: #14b8a6 !important;
+        color: #06080f !important;
     }
 
     /* ── Sliders ──────────────────────────────────────── */
-    .stSlider > div > div > div { background: linear-gradient(90deg, #63b3ed, #9f7aea); }
+    .stSlider > div > div > div { background-color: #14b8a6; }
 
     /* ── Tabs ─────────────────────────────────────────── */
     .stTabs [data-baseweb="tab-list"] {
-        background: rgba(13,17,23,0.8);
-        border: 1px solid rgba(99,179,237,0.15);
-        border-radius: 12px;
-        padding: 5px;
-        gap: 4px;
+        background-color: transparent;
+        border-bottom: 1px solid #1e2d3d;
+        gap: 0;
     }
     .stTabs [data-baseweb="tab"] {
-        color: #718096;
-        border-radius: 8px;
-        padding: 8px 18px;
+        color: #475569;
+        border-radius: 0;
+        padding: 10px 20px;
         font-weight: 500;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
     }
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgba(99,179,237,0.2), rgba(159,122,234,0.2)) !important;
-        color: #63b3ed !important;
-        border: 1px solid rgba(99,179,237,0.3) !important;
+        background-color: transparent !important;
+        color: #14b8a6 !important;
+        border-bottom: 2px solid #14b8a6 !important;
     }
 
     /* ── Expanders ────────────────────────────────────── */
     .streamlit-expanderHeader {
-        background: linear-gradient(135deg, rgba(99,179,237,0.06), rgba(159,122,234,0.06)) !important;
-        border: 1px solid rgba(99,179,237,0.2) !important;
-        border-radius: 10px !important;
+        background-color: #0d1117 !important;
+        border: 1px solid #1e2d3d !important;
+        border-left: 3px solid #f59e0b !important;
+        border-radius: 0 4px 4px 0 !important;
         color: #e2e8f0 !important;
         font-weight: 600 !important;
     }
     .streamlit-expanderContent {
-        background: rgba(13,17,23,0.6) !important;
-        border: 1px solid rgba(99,179,237,0.15) !important;
+        background-color: #090c14 !important;
+        border: 1px solid #1e2d3d !important;
         border-top: none !important;
     }
 
     /* ── Selectbox ────────────────────────────────────── */
     .stSelectbox > div > div {
-        background: rgba(13,17,23,0.8) !important;
-        border: 1px solid rgba(99,179,237,0.2) !important;
-        border-radius: 8px !important;
+        background-color: #0d1117 !important;
+        border: 1px solid #1e2d3d !important;
+        border-radius: 4px !important;
         color: #e2e8f0 !important;
+        font-family: 'DM Mono', monospace !important;
+    }
+
+    /* ── Number Input ─────────────────────────────────── */
+    .stNumberInput > div > div > input {
+        background-color: #0d1117 !important;
+        border: 1px solid #1e2d3d !important;
+        color: #e2e8f0 !important;
+        border-radius: 4px !important;
     }
 
     /* ── Divisores ────────────────────────────────────── */
     hr {
         border: none;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(99,179,237,0.3), transparent);
-        margin: 1.5rem 0;
+        background-color: #1e2d3d;
+        margin: 1.8rem 0;
     }
 
     /* ── Badges ───────────────────────────────────────── */
     .badge-high {
-        background: linear-gradient(135deg, #742a2a, #c53030);
-        color: #fed7d7; padding: 7px 18px; border-radius: 20px;
-        font-weight: 700; font-size: 14px; display: inline-block;
-        border: 1px solid rgba(252,129,129,0.3);
-        box-shadow: 0 4px 15px rgba(197,48,48,0.25);
+        background-color: #1a0a0a;
+        color: #f87171;
+        padding: 6px 16px;
+        border-radius: 3px;
+        font-weight: 700;
+        font-size: 13px;
+        display: inline-block;
+        border: 1px solid #ef4444;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
     .badge-med {
-        background: linear-gradient(135deg, #7b341e, #c05621);
-        color: #feebc8; padding: 7px 18px; border-radius: 20px;
-        font-weight: 700; font-size: 14px; display: inline-block;
-        border: 1px solid rgba(237,137,54,0.3);
-        box-shadow: 0 4px 15px rgba(192,86,33,0.25);
+        background-color: #1a120a;
+        color: #fbbf24;
+        padding: 6px 16px;
+        border-radius: 3px;
+        font-weight: 700;
+        font-size: 13px;
+        display: inline-block;
+        border: 1px solid #f59e0b;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
     .badge-low {
-        background: linear-gradient(135deg, #1c4532, #276749);
-        color: #c6f6d5; padding: 7px 18px; border-radius: 20px;
-        font-weight: 700; font-size: 14px; display: inline-block;
-        border: 1px solid rgba(72,187,120,0.3);
-        box-shadow: 0 4px 15px rgba(39,103,73,0.25);
+        background-color: #051a14;
+        color: #34d399;
+        padding: 6px 16px;
+        border-radius: 3px;
+        font-weight: 700;
+        font-size: 13px;
+        display: inline-block;
+        border: 1px solid #14b8a6;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
 
     /* ── Cards customizados ───────────────────────────── */
     .info-box {
-        background: linear-gradient(135deg, rgba(99,179,237,0.06), rgba(159,122,234,0.06));
-        border-left: 3px solid #63b3ed;
-        border-radius: 0 8px 8px 0;
-        padding: 14px 18px; margin: 8px 0;
+        background-color: #0d1117;
+        border-left: 3px solid #14b8a6;
+        border-radius: 0 4px 4px 0;
+        padding: 14px 18px;
+        margin: 8px 0;
+        font-size: 14px;
     }
     .action-box {
-        background: linear-gradient(135deg, rgba(104,211,145,0.06), rgba(99,179,237,0.04));
-        border-left: 3px solid #68d391;
-        border-radius: 0 8px 8px 0;
-        padding: 11px 16px; margin: 6px 0; font-size: 14px;
-        color: #c6f6d5 !important;
+        background-color: #080f0d;
+        border-left: 3px solid #34d399;
+        border-radius: 0 4px 4px 0;
+        padding: 11px 16px;
+        margin: 5px 0;
+        font-size: 14px;
+        color: #a7f3d0 !important;
+        font-family: 'DM Sans', sans-serif;
     }
 
     /* ── Dataframe ────────────────────────────────────── */
     .stDataFrame {
-        border: 1px solid rgba(99,179,237,0.2) !important;
-        border-radius: 10px;
+        border: 1px solid #1e2d3d !important;
+        border-radius: 4px;
     }
+
+    /* ── Scrollbar ────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #06080f; }
+    ::-webkit-scrollbar-thumb { background: #1e2d3d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #14b8a6; }
 </style>
 """, unsafe_allow_html=True)
 
-PALETTE = ['#63b3ed','#9f7aea','#68d391','#f6ad55','#fc8181','#76e4f7']
+PALETTE = ['#14b8a6','#f59e0b','#6366f1','#34d399','#f87171','#38bdf8']
 
 # ── Dados e modelo ──────────────────────────────────────────
 @st.cache_resource
@@ -358,18 +412,18 @@ with st.sidebar:
     st.markdown(f"**Modelo:** XGBoost  \n**ROC-AUC:** `{auc:.4f}`  \n**Base:** {len(df):,} clientes")
 
 def dark_fig(figsize=(12,5)):
-    fig, ax = plt.subplots(figsize=figsize, facecolor='#0a0c14')
+    fig, ax = plt.subplots(figsize=figsize, facecolor='#06080f')
     ax.set_facecolor('#111827')
     ax.tick_params(colors='#9aa0a6')
     for spine in ax.spines.values(): spine.set_edgecolor('#1a2234')
     return fig, ax
 
 def dark_figs(nrows, ncols, figsize):
-    fig, axes = plt.subplots(nrows, ncols, figsize=figsize, facecolor='#0a0c14')
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize, facecolor='#06080f')
     for ax in np.array(axes).flatten():
-        ax.set_facecolor('#0d1117')
-        ax.tick_params(colors='#718096')
-        for spine in ax.spines.values(): spine.set_edgecolor('#1a2744')
+        ax.set_facecolor('#0a0d14')
+        ax.tick_params(colors='#475569')
+        for spine in ax.spines.values(): spine.set_edgecolor('#1e2d3d')
     return fig, axes
 
 # ── PAGE 1: Visão Geral ─────────────────────────────────────
@@ -400,11 +454,11 @@ if page == "🏠 Visão Geral":
         cp = df.groupby('profile')['churned'].mean().sort_values(ascending=False)*100
         colors_p = [PALETTE[5] if v>20 else PALETTE[0] for v in cp.values]
         ax.bar(cp.index, cp.values, color=colors_p, alpha=0.85)
-        ax.axhline(churn_rt, color='#4a5568', linestyle='--', alpha=0.5, label=f'Média {churn_rt:.1f}%')
-        ax.set_ylabel('%', color='#718096')
-        ax.legend(facecolor='#0d1117', labelcolor='#e2e8f0')
+        ax.axhline(churn_rt, color='#2d3748', linestyle='--', alpha=0.5, label=f'Média {churn_rt:.1f}%')
+        ax.set_ylabel('%', color='#475569')
+        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
         for i,v in enumerate(cp.values):
-            ax.text(i, v+0.3, f'{v:.1f}%', ha='center', color='#e2e8f0', fontsize=10)
+            ax.text(i, v+0.3, f'{v:.1f}%', ha='center', color='#cbd5e1', fontsize=10)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     with col2:
@@ -413,9 +467,9 @@ if page == "🏠 Visão Geral":
         rc = df['churn_risk'].value_counts().reindex(['Baixo','Médio','Alto','Crítico'])
         colors_r = [PALETTE[3],PALETTE[4],PALETTE[1],PALETTE[5]]
         ax.bar(rc.index, rc.values, color=colors_r, alpha=0.85)
-        ax.set_ylabel('Clientes', color='#718096')
+        ax.set_ylabel('Clientes', color='#475569')
         for i,v in enumerate(rc.values):
-            ax.text(i, v+30, f'{v:,}', ha='center', color='#e2e8f0', fontsize=10)
+            ax.text(i, v+30, f'{v:,}', ha='center', color='#cbd5e1', fontsize=10)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
@@ -427,8 +481,8 @@ if page == "🏠 Visão Geral":
         cp2 = df.groupby('products')['churned'].mean()*100
         ax.plot(cp2.index, cp2.values, marker='o', color=PALETTE[0], linewidth=2.5, markersize=8)
         ax.fill_between(cp2.index, cp2.values, alpha=0.15, color=PALETTE[0])
-        ax.set_xlabel('Produtos', color='#718096')
-        ax.set_ylabel('%', color='#718096')
+        ax.set_xlabel('Produtos', color='#475569')
+        ax.set_ylabel('%', color='#475569')
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     with col4:
@@ -437,7 +491,7 @@ if page == "🏠 Visão Geral":
         top10 = shap_imp.head(10)
         ax.barh(top10['feature'][::-1], top10['mean_shap'][::-1],
                 color=PALETTE[0], alpha=0.85)
-        ax.set_xlabel('Mean |SHAP value|', color='#718096')
+        ax.set_xlabel('Mean |SHAP value|', color='#475569')
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
 # ── PAGE 2: RFM e Clusters ──────────────────────────────────
@@ -454,13 +508,13 @@ elif page == "🔵 Análise RFM e Clusters":
         seg_churn  = df.groupby('RFM_segment')['churned'].mean()*100
         colors_s   = [PALETTE[5] if seg_churn.get(s,0)>20 else PALETTE[0] for s in seg_counts.index]
         ax.bar(seg_counts.index, seg_counts.values, color=colors_s, alpha=0.85)
-        ax.set_ylabel('Clientes', color='#718096')
+        ax.set_ylabel('Clientes', color='#475569')
         ax2 = ax.twinx()
         ax2.plot(seg_counts.index, [seg_churn.get(s,0) for s in seg_counts.index],
                  marker='D', color=PALETTE[5], linewidth=2, markersize=8, label='Churn%')
         ax2.set_ylabel('Churn Rate (%)', color=PALETTE[5])
         ax2.tick_params(colors=PALETTE[5])
-        ax2.legend(facecolor='#0d1117', labelcolor='#e2e8f0')
+        ax2.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
         for spine in ax2.spines.values(): spine.set_edgecolor('#1a2234')
         ax2.set_facecolor('#111827')
         plt.tight_layout(); st.pyplot(fig); plt.close()
@@ -471,8 +525,8 @@ elif page == "🔵 Análise RFM e Clusters":
         for churn_val, color, name in [(0,PALETTE[0],'Ativo'),(1,PALETTE[5],'Churn')]:
             vals = df[df['churned']==churn_val]['RFM_score']
             ax.hist(vals, bins=20, alpha=0.6, color=color, label=name, density=True)
-        ax.set_xlabel('RFM Score', color='#718096')
-        ax.legend(facecolor='#0d1117', labelcolor='#e2e8f0')
+        ax.set_xlabel('RFM Score', color='#475569')
+        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1')
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     st.markdown("---")
@@ -501,9 +555,9 @@ elif page == "🔵 Análise RFM e Clusters":
         cc = df.groupby('cluster_name')['churned'].mean().sort_values(ascending=False)*100
         colors_c = [PALETTE[5] if v>25 else PALETTE[4] if v>12 else PALETTE[0] for v in cc.values]
         ax.barh(cc.index, cc.values, color=colors_c, alpha=0.85)
-        ax.set_xlabel('%', color='#718096')
+        ax.set_xlabel('%', color='#475569')
         for i,v in enumerate(cc.values):
-            ax.text(v+0.2, i, f'{v:.1f}%', va='center', color='#e2e8f0', fontsize=9)
+            ax.text(v+0.2, i, f'{v:.1f}%', va='center', color='#cbd5e1', fontsize=9)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
     with col4:
@@ -515,9 +569,9 @@ elif page == "🔵 Análise RFM e Clusters":
             ax.scatter(df[mask]['engagement_score'], df[mask]['RFM_score'],
                       color=PALETTE[i%len(PALETTE)], alpha=0.3, s=8,
                       label=cluster_names.get(cid, f'C{cid}'))
-        ax.set_xlabel('Engagement Score', color='#718096')
-        ax.set_ylabel('RFM Score', color='#718096')
-        ax.legend(facecolor='#0d1117', labelcolor='#e2e8f0', fontsize=8, markerscale=3)
+        ax.set_xlabel('Engagement Score', color='#475569')
+        ax.set_ylabel('RFM Score', color='#475569')
+        ax.legend(facecolor='#0a0d14', labelcolor='#cbd5e1', fontsize=8, markerscale=3)
         plt.tight_layout(); st.pyplot(fig); plt.close()
 
 # ── PAGE 3: Score Individual ─────────────────────────────────
@@ -603,9 +657,9 @@ elif page == "🔴 Score Individual":
             fig, ax  = dark_fig((9,5))
             ax.barh(feats_s[::-1], vals_s[::-1],
                     color=['#f87171' if v>0 else '#60a5fa' for v in vals_s[::-1]], alpha=0.85)
-            ax.axvline(0, color='#4a5568', linewidth=0.8, alpha=0.5)
-            ax.set_title('Fatores que contribuem para o risco', color='#e2e8f0')
-            ax.set_xlabel('SHAP value (+ aumenta risco)', color='#718096')
+            ax.axvline(0, color='#2d3748', linewidth=0.8, alpha=0.5)
+            ax.set_title('Fatores que contribuem para o risco', color='#cbd5e1')
+            ax.set_xlabel('SHAP value (+ aumenta risco)', color='#475569')
             plt.tight_layout(); st.pyplot(fig); plt.close()
 
         with tab2:
@@ -621,10 +675,10 @@ elif page == "🔴 Score Individual":
             colors_rfm = [PALETTE[3] if v>=4 else PALETTE[4] if v>=3 else PALETTE[5] for v in scores]
             ax.bar(labels, scores, color=colors_rfm, alpha=0.85)
             ax.set_ylim(0, 5.5)
-            ax.set_ylabel('Score', color='#718096')
-            ax.set_title('Scores RFM do Cliente', color='#e2e8f0')
+            ax.set_ylabel('Score', color='#475569')
+            ax.set_title('Scores RFM do Cliente', color='#cbd5e1')
             for i,v in enumerate(scores):
-                ax.text(i, v+0.1, f'{v}/5', ha='center', color='#e2e8f0', fontsize=12, fontweight='bold')
+                ax.text(i, v+0.1, f'{v}/5', ha='center', color='#cbd5e1', fontsize=12, fontweight='bold')
             plt.tight_layout(); st.pyplot(fig); plt.close()
 
 # ── PAGE 4: Plano de Intervenção ────────────────────────────
@@ -749,9 +803,9 @@ elif page == "🎯 Plano de Intervenção":
         ax.annotate(seg, (stats['churn_rate']*100,
                           int(stats['criticos'])+int(stats['alto_risco'])),
                     xytext=(8,4), textcoords='offset points',
-                    color='#e2e8f0', fontsize=9)
+                    color='#cbd5e1', fontsize=9)
 
-    ax.set_xlabel('Churn Rate (%)', color='#718096')
-    ax.set_ylabel('Clientes em Risco (Alto + Crítico)', color='#718096')
-    ax.set_title('Priorização: Churn Rate vs Volume em Risco', color='#e2e8f0')
+    ax.set_xlabel('Churn Rate (%)', color='#475569')
+    ax.set_ylabel('Clientes em Risco (Alto + Crítico)', color='#475569')
+    ax.set_title('Priorização: Churn Rate vs Volume em Risco', color='#cbd5e1')
     plt.tight_layout(); st.pyplot(fig); plt.close()
