@@ -499,10 +499,7 @@ if page == "🏠 Visão Geral":
         st.markdown("## Churn × NPS")
         fig, ax = dark_fig((5, 3.5))
         df['nps_group'] = pd.cut(df['nps_score'], bins=[-1,6,8,10],
-                                  labels=['Detrator
-(0-6)','Neutro
-(7-8)','Promotor
-(9-10)'])
+                                  labels=['Detrator (0-6)','Neutro (7-8)','Promotor (9-10)'])
         cn = df.groupby('nps_group', observed=True)['churned'].mean() * 100
         ax.bar(cn.index, cn.values,
                color=[PALETTE[4], PALETTE[1], PALETTE[3]], alpha=0.9, width=0.5)
