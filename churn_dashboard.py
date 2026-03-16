@@ -369,7 +369,7 @@ def dark_figs(nrows, ncols, figsize):
     for ax in np.array(axes).flatten():
         ax.set_facecolor('#0d1117')
         ax.tick_params(colors='#718096')
-        for spine in ax.spines.values(): spine.set_edgecolor('rgba(99,179,237,0.1)')
+        for spine in ax.spines.values(): spine.set_edgecolor('#1a2744')
     return fig, axes
 
 # ── PAGE 1: Visão Geral ─────────────────────────────────────
@@ -400,7 +400,7 @@ if page == "🏠 Visão Geral":
         cp = df.groupby('profile')['churned'].mean().sort_values(ascending=False)*100
         colors_p = [PALETTE[5] if v>20 else PALETTE[0] for v in cp.values]
         ax.bar(cp.index, cp.values, color=colors_p, alpha=0.85)
-        ax.axhline(churn_rt, color='rgba(255,255,255,0.4)', linestyle='--', alpha=0.5, label=f'Média {churn_rt:.1f}%')
+        ax.axhline(churn_rt, color='#4a5568', linestyle='--', alpha=0.5, label=f'Média {churn_rt:.1f}%')
         ax.set_ylabel('%', color='#718096')
         ax.legend(facecolor='#0d1117', labelcolor='#e2e8f0')
         for i,v in enumerate(cp.values):
@@ -603,7 +603,7 @@ elif page == "🔴 Score Individual":
             fig, ax  = dark_fig((9,5))
             ax.barh(feats_s[::-1], vals_s[::-1],
                     color=['#f87171' if v>0 else '#60a5fa' for v in vals_s[::-1]], alpha=0.85)
-            ax.axvline(0, color='rgba(255,255,255,0.4)', linewidth=0.8, alpha=0.5)
+            ax.axvline(0, color='#4a5568', linewidth=0.8, alpha=0.5)
             ax.set_title('Fatores que contribuem para o risco', color='#e2e8f0')
             ax.set_xlabel('SHAP value (+ aumenta risco)', color='#718096')
             plt.tight_layout(); st.pyplot(fig); plt.close()
